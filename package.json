@@ -1,12 +1,38 @@
 {
   "name": "net-scan-desktop-application",
   "version": "0.0.0",
+  "main": "electron/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "electron:compile": "tsc -p tsconfig.electron.json",
+    "electron:dev": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && npm run electron:compile && cross-env NODE_ENV=development electron .\"",
+    "electron:build": "ng build && npm run electron:compile && electron .",
+    "electron:dist": "ng build && npm run electron:compile && electron-builder"
+  },
+  "build": {
+    "appId": "com.netscan.desktop",
+    "productName": "Net Scan Desktop",
+    "directories": {
+      "output": "dist/electron-dist",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "electron/*.js",
+      "dist/net-scan-desktop-application/browser/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -25,11 +51,17 @@
     "@angular/cli": "^21.2.7",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/node": "^22.19.17",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wait-on": "^9.0.4"
   }
 }

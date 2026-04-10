@@ -1,0 +1,45 @@
+<header>
+  <div class="py-4! px-6! flex items-center justify-between border-b border-[#252525]">
+    <div class="text-4xl font-medium font-primary">
+      Net<span class="text-highlight font-semibold">Scan</span>
+      <span class="ml-4! text-xs text-secondary-text font-secondary">{{ version() }}</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <button
+        type="button"
+        (click)="action1Click.emit()"
+        class="size-10 bg-[#212121] rounded-xs"
+      ></button>
+      <button
+        type="button"
+        (click)="action2Click.emit()"
+        class="size-10 bg-[#212121] rounded-xs"
+      ></button>
+      <button
+        type="button"
+        (click)="action3Click.emit()"
+        class="size-10 bg-[#212121] rounded-xs"
+      ></button>
+      <div class="size-10 rounded-full">
+        <img [src]="avatarUrl()" alt="User avatar" class="w-full rounded-full" />
+      </div>
+    </div>
+  </div>
+  <nav class="py-2! px-6! border-b border-[#252525]">
+    <ul class="flex items-center gap-16">
+      @for (item of navItems(); track item.route) {
+        <li class="pb-0.5!">
+          <a
+            #rla="routerLinkActive"
+            [routerLink]="item.route"
+            routerLinkActive
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="text-sm"
+            [class]="rla.isActive ? 'text-highlight' : 'text-[#6f6f6f]'"
+            >{{ item.label }}</a
+          >
+        </li>
+      }
+    </ul>
+  </nav>
+</header>

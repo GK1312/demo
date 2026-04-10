@@ -1,0 +1,20 @@
+<div class="flex flex-col h-full py-4! px-6! gap-4!">
+  @for (navItem of SidebarItems; track $index) {
+    <section>
+      <p class="mb-2! text-xs text-tertiary-text capitalize tracking-widest">{{ navItem.label }}</p>
+      <div class="flex flex-col gap-1">
+        @for (menuItem of navItem.childrens; track $index) {
+          <button
+            type="button"
+            class="w-full text-left text-sm px-4! py-3! rounded-xs text-secondary-text leading-none cursor-pointer hover:bg-[#212121]"
+          >
+            {{ menuItem.label }}
+          </button>
+        }
+      </div>
+    </section>
+    @if ($index !== SidebarItems.length - 1) {
+      <div class="border-t border-[#252525]"></div>
+    }
+  }
+</div>
