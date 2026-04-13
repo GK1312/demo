@@ -1,0 +1,47 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: all;
+}
+
+.dialog-backdrop.visible {
+  opacity: 1;
+}
+
+.dialog-panel {
+  position: relative;
+  z-index: 1;
+  background: #1c1c1c;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.48);
+  max-width: min(90vw, 560px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+  pointer-events: all;
+  outline: none;
+}
+
+.dialog-panel.visible {
+  opacity: 1;
+  transform: scale(1);
+}

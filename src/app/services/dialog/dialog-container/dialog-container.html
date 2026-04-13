@@ -1,0 +1,19 @@
+<div
+  class="dialog-backdrop"
+  [class.visible]="isVisible()"
+  (click)="onBackdropClick()"
+  role="presentation"
+  aria-hidden="true"
+></div>
+
+<div
+  #panel
+  class="dialog-panel"
+  [class.visible]="isVisible()"
+  [style.width]="width() || null"
+  role="dialog"
+  aria-modal="true"
+  tabindex="-1"
+>
+  <ng-container #host></ng-container>
+</div>

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { routes } from '../../../../app.routes';
 
 @Component({
   selector: 'app-scanning-sidebar',
@@ -10,17 +9,18 @@ import { routes } from '../../../../app.routes';
 export class ScanningSidebar {
   SidebarItems = [
     {
-      label: 'Asset Options',
+      label: 'Scanning Options',
       childrens: [
-        { label: 'New asset', route: '' },
-        { label: 'New location', route: '' },
+        { label: 'Scanning Targets', route: '' },
+        { label: 'Scanning Credentials', route: '' },
       ],
     },
     {
-      label: 'Basic Actions',
+      label: 'Scanning Status',
       childrens: [
-        { label: 'Ping', route: '' },
-        { label: 'Pathing', route: '' },
+        { label: 'Scanning Queue', route: '' },
+        { label: 'Scanned in last 7 days', route: '' },
+        { label: 'Scanned in last 24 hours', route: '' },
       ],
     },
   ];

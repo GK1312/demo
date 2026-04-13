@@ -19,7 +19,11 @@ export class HeaderBar {
   );
   readonly navItems = input<NavItem[]>([
     { label: 'Dashboard', route: '/dashboard' },
-    { label: 'Assets', route: '/dashboard/scanning' },
+    { label: 'Assets', route: '/dashboard/assets' },
+    { label: 'Reports', route: '/dashboard/reports' },
+    { label: 'Software', route: '/dashboard/software' },
+    { label: 'Scanning', route: '/dashboard/scanning' },
+    { label: 'Configuration', route: '/dashboard/configuration' },
   ]);
 
   readonly action1Click = output<void>();

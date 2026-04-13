@@ -1,0 +1,588 @@
+<!-- ── Header ──────────────────────────────────────────────────────── -->
+<div class="dlg-header">
+  <h2 class="dlg-title">Add Scanning Target</h2>
+  <button type="button" class="dlg-close" (click)="cancel()" aria-label="Close dialog">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2.5"
+        d="M18 6 6 18M6 6l12 12"
+      />
+    </svg>
+  </button>
+</div>
+
+<!-- ── Body ───────────────────────────────────────────────────────── -->
+<div class="dlg-body" [formGroup]="form">
+  <!-- Target Type – Searchable Dropdown -->
+  <div class="form-row">
+    <label class="form-label" id="targetTypeLabel">Target Type:</label>
+    <div class="type-dropdown-wrap">
+      @if (typeDropdownOpen()) {
+        <div class="type-backdrop" (click)="closeTypeDropdown()" aria-hidden="true"></div>
+      }
+      <button
+        type="button"
+        class="type-trigger"
+        [class.open]="typeDropdownOpen()"
+        (click)="toggleTypeDropdown()"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="typeDropdownOpen()"
+        aria-labelledby="targetTypeLabel"
+      >
+        <span class="type-trigger-text">{{ selectedType() }}</span>
+        <svg
+          class="type-chevron"
+          [class.open]="typeDropdownOpen()"
+          width="12"
+          height="12"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="m6 9 6 6 6-6"
+          />
+        </svg>
+      </button>
+      @if (typeDropdownOpen()) {
+        <div class="type-dropdown-panel" role="listbox" aria-labelledby="targetTypeLabel">
+          <div class="type-search-wrap">
+            <svg
+              class="type-search-icon"
+              width="13"
+              height="13"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="2"
+                d="m21 21-4.35-4.35"
+              />
+            </svg>
+            <input
+              #typeSearchInput
+              class="type-search-input"
+              type="text"
+              placeholder="Search..."
+              autocomplete="off"
+              [value]="typeSearch()"
+              (input)="onTypeSearch($event)"
+              (keydown.escape)="closeTypeDropdown()"
+              aria-label="Search target types"
+            />
+          </div>
+          <div class="type-option-list">
+            @for (type of filteredTypes(); track type.id) {
+              <button
+                type="button"
+                class="type-option"
+                [class.selected]="selectedType() === type.label"
+                (click)="selectType(type.label)"
+                role="option"
+                [attr.aria-selected]="selectedType() === type.label"
+              >
+                {{ type.label }}
+              </button>
+            }
+            @if (filteredTypes().length === 0) {
+              <div class="type-no-results">No matches found</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── IP Range ──────────────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'ip') {
+    <div class="form-row">
+      <label class="form-label" for="ipStart">IP Start:</label>
+      <input
+        id="ipStart"
+        class="form-input"
+        formControlName="ipStart"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="ipEnd">IP End:</label>
+      <input id="ipEnd" class="form-input" formControlName="ipEnd" type="text" autocomplete="off" />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="pingTimeout">Ping Time-out:</label>
+      <div class="form-inline-group">
+        <input
+          id="pingTimeout"
+          class="form-input input-xs"
+          formControlName="pingTimeout"
+          type="number"
+          min="1"
+          max="300"
+        />
+        <span class="form-unit">seconds</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="scanMethod">Scan Method:</label>
+      <select id="scanMethod" class="form-select" formControlName="scanMethod">
+        <option value="POWERSHELL">POWERSHELL</option>
+        <option value="WMI">WMI</option>
+        <option value="NODE_WMI">NODE_WMI</option>
+        <option value="SSH">SSH</option>
+      </select>
+    </div>
+    <div class="form-row align-start">
+      <span class="form-label"></span>
+      <div class="form-checkboxes">
+        <label class="chk-label">
+          <input type="checkbox" formControlName="dontPing" class="chk" id="dontPing" />
+          Don't ping
+        </label>
+        <label class="chk-label">
+          <input type="checkbox" formControlName="savePingedIp" class="chk" id="savePingedIp" />
+          Save pinged IP
+        </label>
+        <label class="chk-label">
+          <input type="checkbox" formControlName="ignoreWindows" class="chk" id="ignoreWindows" />
+          Ignore Windows
+        </label>
+        <label class="chk-label">
+          <input
+            type="checkbox"
+            formControlName="scanNewWindowsOnly"
+            class="chk"
+            id="scanNewWindowsOnly"
+          />
+          Scan New Windows Only
+        </label>
+        <label class="chk-label">
+          <input type="checkbox" formControlName="noSsh" class="chk" id="noSsh" />
+          No SSH
+        </label>
+      </div>
+    </div>
+  }
+
+  <!-- ── Chrome OS ─────────────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'chromeos') {
+    <div class="section-header">Credential:</div>
+    <div class="form-row">
+      <label class="form-label" for="credentialName">Name:</label>
+      <input
+        id="credentialName"
+        class="form-input"
+        formControlName="credentialName"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="chromeUsername">Username:</label>
+      <input
+        id="chromeUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row align-start">
+      <label class="form-label pt-1" for="jsonKey">JSON Key:</label>
+      <div class="form-control-wrap">
+        <button
+          type="button"
+          class="json-help-btn"
+          title="The JSON service account key file content from Google Admin"
+          aria-label="JSON Key help"
+        >
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8" />
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="1.8"
+              d="M12 16v-4m0-4h.01"
+            />
+          </svg>
+        </button>
+        <textarea
+          id="jsonKey"
+          class="form-textarea"
+          formControlName="jsonKey"
+          rows="7"
+          placeholder="Paste service account JSON key content here..."
+        ></textarea>
+      </div>
+    </div>
+  }
+
+  <!-- ── Active Directory ───────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'ad') {
+    <div class="form-row">
+      <label class="form-label" for="adDomain">Domain:</label>
+      <input
+        id="adDomain"
+        class="form-input"
+        formControlName="domain"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    @if (selectedType() !== 'Active Directory Domain') {
+      <div class="form-row">
+        <label class="form-label" for="adPath">Path (OU):</label>
+        <input
+          id="adPath"
+          class="form-input"
+          formControlName="adPath"
+          type="text"
+          autocomplete="off"
+        />
+      </div>
+    }
+    <div class="form-row">
+      <label class="form-label" for="adUsername">Username:</label>
+      <input
+        id="adUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="adPassword">Password:</label>
+      <input
+        id="adPassword"
+        class="form-input"
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── Cloud (Azure / Intune / M365 / O365 / Entra ID) ──────────── -->
+  @if (scanTypeGroup() === 'cloud') {
+    <div class="form-row">
+      <label class="form-label" for="tenantId">Tenant ID:</label>
+      <input
+        id="tenantId"
+        class="form-input"
+        formControlName="tenantId"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="clientId">Client ID:</label>
+      <input
+        id="clientId"
+        class="form-input"
+        formControlName="clientId"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="clientSecret">Client Secret:</label>
+      <input
+        id="clientSecret"
+        class="form-input"
+        formControlName="clientSecret"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── AWS ───────────────────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'aws') {
+    <div class="form-row">
+      <label class="form-label" for="region">Region:</label>
+      <input
+        id="region"
+        class="form-input"
+        formControlName="region"
+        type="text"
+        placeholder="e.g. us-east-1"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="accessKey">Access Key ID:</label>
+      <input
+        id="accessKey"
+        class="form-input"
+        formControlName="accessKey"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="secretKey">Secret Access Key:</label>
+      <input
+        id="secretKey"
+        class="form-input"
+        formControlName="secretKey"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── Windows Computers ─────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'windows') {
+    <div class="form-row">
+      <label class="form-label" for="computer">Computer:</label>
+      <input
+        id="computer"
+        class="form-input"
+        formControlName="computer"
+        type="text"
+        placeholder="IP or hostname"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="winUsername">Username:</label>
+      <input
+        id="winUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="winPassword">Password:</label>
+      <input
+        id="winPassword"
+        class="form-input"
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── Workgroups ────────────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'workgroup') {
+    <div class="form-row">
+      <label class="form-label" for="workgroupName">Workgroup:</label>
+      <input
+        id="workgroupName"
+        class="form-input"
+        formControlName="workgroupName"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="wgUsername">Username:</label>
+      <input
+        id="wgUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="wgPassword">Password:</label>
+      <input
+        id="wgPassword"
+        class="form-input"
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── SCCM ──────────────────────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'sccm') {
+    <div class="form-row">
+      <label class="form-label" for="sccmServer">Server:</label>
+      <input
+        id="sccmServer"
+        class="form-input"
+        formControlName="sccmServer"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="database">Database:</label>
+      <input
+        id="database"
+        class="form-input"
+        formControlName="database"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="sccmUsername">Username:</label>
+      <input
+        id="sccmUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="sccmPassword">Password:</label>
+      <input
+        id="sccmPassword"
+        class="form-input"
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── VMware Workspace One ──────────────────────────────────────── -->
+  @if (scanTypeGroup() === 'vmware') {
+    <div class="form-row">
+      <label class="form-label" for="serverUrl">Server URL:</label>
+      <input
+        id="serverUrl"
+        class="form-input"
+        formControlName="serverUrl"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="vmUsername">Username:</label>
+      <input
+        id="vmUsername"
+        class="form-input"
+        formControlName="username"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="vmPassword">Password:</label>
+      <input
+        id="vmPassword"
+        class="form-input"
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+    </div>
+  }
+
+  <!-- ── Target Description (always shown) ─────────────────────────── -->
+  <div class="form-row align-start">
+    <label class="form-label pt-1" for="targetDescription">Target description:</label>
+    <textarea
+      id="targetDescription"
+      class="form-textarea"
+      formControlName="targetDescription"
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- ── SSH / SIP Ports (IP Range only) ──────────────────────────── -->
+  @if (scanTypeGroup() === 'ip') {
+    <div class="form-row">
+      <label class="form-label" for="sshPort">SSH port:</label>
+      <input
+        id="sshPort"
+        class="form-input input-xs"
+        formControlName="sshPort"
+        type="number"
+        min="1"
+        max="65535"
+      />
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="sipPort">SIP port:</label>
+      <input
+        id="sipPort"
+        class="form-input input-xs"
+        formControlName="sipPort"
+        type="number"
+        min="1"
+        max="65535"
+      />
+    </div>
+  }
+
+  <!-- ── Target Schedule (always shown) ───────────────────────────── -->
+  <div class="section-header">Target schedule:</div>
+  <div formArrayName="schedule" class="schedule-grid">
+    @for (ctrl of scheduleControls; track $index; let i = $index) {
+      <div [formGroupName]="i" class="schedule-row" [class.disabled]="isRecurring()">
+        <input type="checkbox" formControlName="enabled" class="chk" [id]="'day-chk-' + i" />
+        <label [for]="'day-chk-' + i" class="day-label">{{ days[i].label }}</label>
+        <input type="time" formControlName="time" class="time-input" />
+      </div>
+    }
+  </div>
+
+  <!-- Recurring -->
+  <div class="form-row mt-2">
+    <span class="form-label"></span>
+    <div class="form-inline-group gap-2">
+      <label class="chk-label" for="recurringEnabled">
+        <input
+          type="checkbox"
+          formControlName="recurringEnabled"
+          class="chk"
+          id="recurringEnabled"
+        />
+        Recurring every
+      </label>
+      <input
+        class="form-input input-xs"
+        formControlName="recurringValue"
+        type="number"
+        min="1"
+        id="recurringValue"
+        aria-label="Recurring interval"
+      />
+      <select
+        class="form-select select-sm"
+        formControlName="recurringUnit"
+        id="recurringUnit"
+        aria-label="Recurring unit"
+      >
+        <option value="Minutes">Minutes</option>
+        <option value="Hours">Hours</option>
+        <option value="Days">Days</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Enable -->
+  <div class="form-row mt-1">
+    <span class="form-label"></span>
+    <label class="chk-label" for="enableTarget">
+      <input type="checkbox" formControlName="enableTarget" class="chk" id="enableTarget" />
+      Enable this scanning target
+    </label>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────── -->
+<div class="dlg-footer">
+  <button type="button" class="btn-primary" (click)="save()">Ok</button>
+  <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+</div>

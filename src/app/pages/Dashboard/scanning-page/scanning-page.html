@@ -1,4 +1,392 @@
 <app-page-layout>
   <app-scanning-sidebar sidebar />
-  <div content class="p-6"></div>
+  <div content class="flex flex-col h-full overflow-hidden">
+    <div class="shrink-0 px-6! py-3! border-b border-[#252525] flex items-center flex-wrap gap-2">
+      <button
+        type="button"
+        (click)="addTarget()"
+        class="toolbar-btn group"
+        title="Add Scanning Target"
+      >
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+          <path
+            stroke="#7bb850"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M5 12h14m-7 7V5"
+          />
+        </svg>
+        Add Target
+      </button>
+
+      <button
+        type="button"
+        (click)="scanNowAll()"
+        class="toolbar-btn group"
+        title="Scan all enabled targets now"
+      >
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+          <path
+            d="M13 2L4.09 12.69C3.74 13.11 3.57 13.32 3.57 13.49c-.002.154.066.3.185.397C3.89 14 4.16 14 4.71 14H12l-1 8 8.91-10.69C20.26 10.89 20.43 10.68 20.43 10.51c.002-.154-.066-.3-.185-.397C20.11 10 19.84 10 19.29 10H12l1-8Z"
+            stroke="#f5e476"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Scan All
+      </button>
+
+      <button
+        type="button"
+        (click)="enableAll()"
+        class="toolbar-btn group"
+        [title]="allEnabled() ? 'Disable all scanning targets' : 'Enable all scanning targets'"
+      >
+        @if (allEnabled()) {
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M18 6L6 18M6 6L18 18"
+              stroke="#e9594d"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Disable All
+        } @else {
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+            <path
+              stroke="#7bb850"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M5 11.917 9.724 16.5 19 7.5"
+            />
+          </svg>
+          Enable All
+        }
+      </button>
+
+      <div class="ml-auto! flex items-center gap-2">
+        <span class="stat-badge text-[#7bb850] border-[#7bb850]/30 bg-[#7bb850]/5">
+          {{ enabledCount() }} Enabled
+        </span>
+        @if (errorCount() > 0) {
+          <span class="stat-badge text-[#e9594d] border-[#e9594d]/30 bg-[#e9594d]/5">
+            {{ errorCount() }} Error{{ errorCount() > 1 ? 's' : '' }}
+          </span>
+        }
+        <span class="stat-badge text-secondary-text border-[#252525]">
+          {{ scanTargets().length }} Total
+        </span>
+      </div>
+    </div>
+    <div class="flex-1 overflow-auto px-6! pt-3! pb-4!">
+      @if (scanTargets().length === 0) {
+        <div class="flex flex-col items-center justify-center h-full gap-3 text-secondary-text">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="#252525" stroke-width="2" />
+            <path stroke="#3f3f3f" stroke-linecap="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+          </svg>
+          <p class="text-sm">No scanning targets added yet.</p>
+          <button type="button" (click)="addTarget()" class="toolbar-btn mt-1!">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+              <path
+                stroke="#7bb850"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M5 12h14m-7 7V5"
+              />
+            </svg>
+            Add Your First Target
+          </button>
+        </div>
+      } @else {
+        <table class="w-full min-w-225 border-collapse">
+          <thead>
+            <tr
+              class="text-left text-xs text-tertiary-text border-b border-[#252525] tracking-wider uppercase"
+            >
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap quick-scan-col">Quick Scan</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Enabled</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Scan Type</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Target</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Description</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Schedule</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Options</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Last Scanned</th>
+              <th class="pb-3! pr-4! font-medium whitespace-nowrap">Actions</th>
+              <th class="pb-3! font-medium whitespace-nowrap status-col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (target of scanTargets(); track target.id) {
+              <tr
+                class="table-row group border-b border-[#1e1e1e] hover:bg-[#161616] transition-colors duration-150"
+                [class.row-expanded]="target.showSchedule || target.showOptions"
+              >
+                <td class="py-3! pr-4! quick-scan-col">
+                  <button
+                    type="button"
+                    (click)="scanNow(target)"
+                    [disabled]="target.isScanning || !target.enabled"
+                    class="toolbar-btn scan-now-btn"
+                    title="Scan this target now"
+                    [class.opacity-40]="!target.enabled"
+                  >
+                    @if (target.isScanning) {
+                      <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                          stroke="#f5e476"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    } @else {
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path
+                          d="M13 2L4.09 12.69C3.74 13.11 3.57 13.32 3.57 13.49c-.002.154.066.3.185.397C3.89 14 4.16 14 4.71 14H12l-1 8 8.91-10.69C20.26 10.89 20.43 10.68 20.43 10.51c.002-.154-.066-.3-.185-.397C20.11 10 19.84 10 19.29 10H12l1-8Z"
+                          stroke="#f5e476"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    }
+                    Scan Now
+                  </button>
+                </td>
+                <td class="py-3! pr-4!">
+                  <label
+                    class="toggle-wrapper flex! items-center justify-center"
+                    [title]="target.enabled ? 'Click to disable' : 'Click to enable'"
+                  >
+                    <input
+                      type="checkbox"
+                      [checked]="target.enabled"
+                      (change)="toggleEnabled(target)"
+                      class="sr-only"
+                    />
+                    <span class="toggle-track" [class.active]="target.enabled">
+                      <span class="toggle-thumb"></span>
+                    </span>
+                  </label>
+                </td>
+                <td class="py-3! pr-4!">
+                  <button
+                    type="button"
+                    class="toolbar-btn group whitespace-nowrap"
+                    title="Scan this target now"
+                    [class.opacity-40]="!target.enabled"
+                    [style.color]="getScanTypeColor(target.scanType)"
+                    [style.border-color]="getScanTypeColor(target.scanType) + '33'"
+                  >
+                    {{ target.scanType }}
+                  </button>
+                </td>
+                <td class="py-3! pr-4! text-xs text-primary-text font-secondary whitespace-nowrap">
+                  {{ target.target }}
+                </td>
+                <td
+                  class="py-3! pr-4! text-xs text-secondary-text max-w-35 truncate"
+                  [title]="target.description"
+                >
+                  {{ target.description || '—' }}
+                </td>
+                <td class="py-3! pr-4! align-top">
+                  @if (target.schedule) {
+                    <div class="dropdown-cell">
+                      <button
+                        type="button"
+                        (click)="toggleSchedule(target, $event)"
+                        class="toolbar-btn"
+                        [class.expand-btn--open]="target.showSchedule"
+                      >
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                          <path
+                            d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                            stroke="#ffa565"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        Schedule
+                        <svg
+                          width="16"
+                          height="16"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          class="expand-chevron"
+                          [class.open]="target.showSchedule"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="m6 9 6 6 6-6"
+                          />
+                        </svg>
+                      </button>
+                      @if (target.showSchedule) {
+                        <div class="dropdown-panel animate-panel-in">
+                          <div class="dp-header">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                              <path
+                                d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                                stroke="#ffa565"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            Schedule
+                          </div>
+                          <p class="dp-value">{{ target.schedule }}</p>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-xs text-tertiary-text">None</span>
+                  }
+                </td>
+                <td class="py-3! pr-4! align-top">
+                  @if (target.options) {
+                    <div class="dropdown-cell">
+                      <button
+                        type="button"
+                        (click)="toggleOptions(target, $event)"
+                        class="toolbar-btn"
+                        [class.expand-btn--open]="target.showOptions"
+                      >
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                          <path
+                            stroke="#ffa565"
+                            stroke-linecap="round"
+                            stroke-width="1.8"
+                            d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"
+                          />
+                        </svg>
+                        Options
+                        <svg
+                          width="16"
+                          height="16"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          class="expand-chevron"
+                          [class.open]="target.showOptions"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="m6 9 6 6 6-6"
+                          />
+                        </svg>
+                      </button>
+                      @if (target.showOptions) {
+                        <div class="dropdown-panel animate-panel-in">
+                          <div class="dp-header">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                              <path
+                                stroke="#ffa565"
+                                stroke-linecap="round"
+                                stroke-width="1.8"
+                                d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"
+                              />
+                            </svg>
+                            Scan Options
+                          </div>
+                          <ul class="dp-list">
+                            @for (opt of getOptionItems(target.options!); track $index) {
+                              <li class="dp-list-item">{{ opt }}</li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-xs text-tertiary-text">Default</span>
+                  }
+                </td>
+                <td
+                  class="py-3! pr-4! text-xs text-secondary-text font-secondary whitespace-nowrap"
+                >
+                  {{ target.lastScanned ?? '—' }}
+                </td>
+                <td class="py-3! pr-4!">
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      (click)="editTarget(target)"
+                      class="icon-btn"
+                      title="Edit"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M11 4H6.8C5.12 4 4.28 4 3.638 4.327a3 3 0 0 0-1.311 1.311C2 6.28 2 7.12 2 8.8v8.4c0 1.68 0 2.52.327 3.162a3 3 0 0 0 1.311 1.311C4.28 22 5.12 22 6.8 22h8.4c1.68 0 2.52 0 3.162-.327a3 3 0 0 0 1.311-1.311C20 19.72 20 18.88 20 17.2V13M8 16h1.675c.489 0 .733 0 .963-.055.204-.05.399-.13.578-.241.201-.126.374-.299.72-.645L21.5 5.5a2.121 2.121 0 0 0-3-3L8.937 12.063c-.346.346-.52.52-.645.72a2 2 0 0 0-.241.579c-.055.23-.055.473-.055.962V16Z"
+                          stroke="#dca048"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteTarget(target)"
+                      class="icon-btn"
+                      title="Delete"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M16 6V5.2C16 4.08 16 3.52 15.782 3.092a2 2 0 0 0-.874-.874C14.48 2 13.92 2 12.8 2h-1.6c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C8 3.52 8 4.08 8 5.2V6M3 6h18M19 6v11.2c0 1.68 0 2.52-.327 3.162a3 3 0 0 1-1.311 1.311C16.72 22 15.88 22 14.2 22H9.8c-1.68 0-2.52 0-3.162-.327a3 3 0 0 1-1.311-1.311C5 19.72 5 18.88 5 17.2V6"
+                          stroke="#e9594d"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+
+                <td class="py-3! status-col">
+                  @if (target.isScanning) {
+                    <span class="status-badge text-[#f5e476] border-[#f5e476]/30 bg-[#f5e476]/5"
+                      >In Queue</span
+                    >
+                  } @else if (target.error) {
+                    <span
+                      class="status-badge text-[#e9594d] border-[#e9594d]/30 bg-[#e9594d]/5"
+                      [title]="target.error"
+                      >Error</span
+                    >
+                  }
+                </td>
+              </tr>
+
+              @if (target.error) {
+                <tr class="border-b border-[#1e1e1e]">
+                  <td colspan="10" class="px-0! pb-2! pt-0!">
+                    <div
+                      class="mx-0! text-xs text-[#e9594d] bg-[#e9594d]/5 border-l-2 border-[#e9594d] px-3! py-1.5! rounded-sm font-secondary"
+                    >
+                      Error: {{ target.error }}
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
 </app-page-layout>

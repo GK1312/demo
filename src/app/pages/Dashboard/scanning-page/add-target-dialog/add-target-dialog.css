@@ -1,0 +1,487 @@
+/* ── Host layout ─────────────────────────────────────────────────── */
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  max-width: 100%;
+  min-height: 0;
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  color: var(--color-primary-text, #e2e2e2);
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+.dlg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #111111;
+  border-bottom: 1px solid #252525;
+  flex-shrink: 0;
+}
+
+.dlg-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary-text, #e2e2e2);
+  letter-spacing: 0.04em;
+}
+
+.dlg-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: var(--color-secondary-text, #a6a6a6);
+  cursor: pointer;
+  border-radius: 4px;
+  transition:
+    background-color 150ms,
+    color 150ms;
+  outline: none;
+}
+
+.dlg-close:hover {
+  background: #2a2a2a;
+  color: var(--color-primary-text, #e2e2e2);
+}
+
+/* ── Body ────────────────────────────────────────────────────────── */
+.dlg-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.dlg-body::-webkit-scrollbar {
+  width: 6px;
+  display: block;
+}
+
+.dlg-body::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+/* ── Form layout ─────────────────────────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.form-row.align-start {
+  align-items: flex-start;
+}
+
+.form-label {
+  font-size: 0.72rem;
+  color: var(--color-secondary-text, #a6a6a6);
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+.form-label.pt-1 {
+  padding-top: 6px;
+}
+
+.form-control-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────── */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  background: #151515;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  color: var(--color-primary-text, #e2e2e2);
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  font-size: 0.72rem;
+  padding: 5px 8px;
+  outline: none;
+  transition: border-color 150ms;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #00e5a0;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #444;
+}
+
+.form-select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.5;
+}
+
+.input-xs {
+  width: 70px;
+}
+
+.select-sm {
+  width: auto;
+  min-width: 90px;
+}
+
+/* ── Inline group ────────────────────────────────────────────────── */
+.form-inline-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form-unit {
+  font-size: 0.7rem;
+  color: var(--color-secondary-text, #a6a6a6);
+}
+
+/* ── Checkboxes ──────────────────────────────────────────────────── */
+.form-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.chk-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--color-secondary-text, #a6a6a6);
+  cursor: pointer;
+  user-select: none;
+}
+
+.chk-label:hover {
+  color: var(--color-primary-text, #e2e2e2);
+}
+
+.chk {
+  width: 13px;
+  height: 13px;
+  accent-color: #00e5a0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Section header ──────────────────────────────────────────────── */
+.section-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-tertiary-text, #6f6f6f);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 0 2px 0;
+  border-bottom: 1px solid #1e1e1e;
+  margin-bottom: 4px;
+}
+
+/* ── JSON Key help button ────────────────────────────────────────── */
+.json-help-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  z-index: 1;
+  padding: 0;
+  transition: color 150ms;
+}
+
+.json-help-btn:hover {
+  color: var(--color-secondary-text, #a6a6a6);
+}
+
+/* ── Schedule grid ───────────────────────────────────────────────── */
+.schedule-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 138px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-label {
+  font-size: 0.72rem;
+  color: var(--color-secondary-text, #a6a6a6);
+  width: 82px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.time-input {
+  background: #151515;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  color: var(--color-primary-text, #e2e2e2);
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  font-size: 0.72rem;
+  padding: 4px 6px;
+  outline: none;
+  transition: border-color 150ms;
+  width: 90px;
+  color-scheme: dark;
+}
+
+.time-input:focus {
+  border-color: #00e5a0;
+}
+
+/* ── Spacing helpers ─────────────────────────────────────────────── */
+.mt-1 {
+  margin-top: 4px;
+}
+
+.mt-2 {
+  margin-top: 10px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.pt-1 {
+  padding-top: 6px;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+.dlg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #111111;
+  border-top: 1px solid #252525;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  padding: 6px 20px;
+  font-size: 0.72rem;
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  background: #1a6e4a;
+  color: #d4f5e6;
+  border: 1px solid #2a9e6a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+  outline: none;
+}
+
+.btn-primary:hover {
+  background: #20885a;
+  border-color: #3abf80;
+}
+
+.btn-primary:active {
+  background: #165f3e;
+}
+
+.btn-secondary {
+  padding: 6px 20px;
+  font-size: 0.72rem;
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  background: transparent;
+  color: var(--color-secondary-text, #a6a6a6);
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms;
+  outline: none;
+}
+
+.btn-secondary:hover {
+  background: #1e1e1e;
+  border-color: #3a3a3a;
+  color: var(--color-primary-text, #e2e2e2);
+}
+
+/* ── Custom searchable Target Type dropdown ──────────────────────── */
+.type-dropdown-wrap {
+  position: relative;
+}
+
+.type-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.type-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 8px;
+  background: #151515;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  color: var(--color-primary-text, #e2e2e2);
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  font-size: 0.72rem;
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+  transition: border-color 150ms;
+}
+
+.type-trigger:hover,
+.type-trigger.open {
+  border-color: #00e5a0;
+}
+
+.type-trigger-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.type-chevron {
+  flex-shrink: 0;
+  color: var(--color-tertiary-text, #6f6f6f);
+  transition: transform 150ms ease;
+  margin-left: 6px;
+}
+
+.type-chevron.open {
+  transform: rotate(180deg);
+}
+
+.type-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 11;
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 5px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.type-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid #252525;
+}
+
+.type-search-icon {
+  color: var(--color-tertiary-text, #6f6f6f);
+  flex-shrink: 0;
+}
+
+.type-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-primary-text, #e2e2e2);
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  font-size: 0.72rem;
+  outline: none;
+}
+
+.type-search-input::placeholder {
+  color: #444;
+}
+
+.type-option-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.type-option-list::-webkit-scrollbar {
+  width: 4px;
+  display: block;
+}
+
+.type-option-list::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+
+.type-option {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-secondary-text, #a6a6a6);
+  font-family: var(--font-primary, 'Jura', sans-serif);
+  font-size: 0.72rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 100ms,
+    color 100ms;
+  outline: none;
+}
+
+.type-option:hover {
+  background: #222;
+  color: var(--color-primary-text, #e2e2e2);
+}
+
+.type-option.selected {
+  color: #00e5a0;
+}
+
+.type-no-results {
+  padding: 10px 12px;
+  font-size: 0.7rem;
+  color: var(--color-tertiary-text, #6f6f6f);
+  text-align: center;
+}
+
+/* ── Disabled schedule rows (when recurring is active) ───────────── */
+.schedule-row.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
